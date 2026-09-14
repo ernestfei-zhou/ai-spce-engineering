@@ -15,4 +15,4 @@
 
 ## 作者
 
-zhoucf@230612
+署名统一为 **ernestfei**（代码 `@author ernestfei`，文档 `作者：ernestfei`）。约定见 `.cursor/rules/authorship.mdc`。

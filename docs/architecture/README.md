@@ -1,6 +1,6 @@
 # 研发 AI 数字员工架构索引
 
-> **作者：** zhoucf@230612  
+> **作者：** ernestfei  
 > **完整规格：** [../superpowers/specs/2026-09-14-ai-digital-employee-design.md](../superpowers/specs/2026-09-14-ai-digital-employee-design.md)
 
 本目录是导航层。设计决策、岗位定义、知识织物、工具治理与分期均以完整规格为准。
