@@ -1,34 +1,29 @@
 # 研发 AI 数字员工架构索引
 
 > **作者：** ernestfei  
-> **完整规格：** [../superpowers/specs/2026-09-14-ai-digital-employee-design.md](../superpowers/specs/2026-09-14-ai-digital-employee-design.md)
+> **现行计划：** [../superpowers/plans/2026-09-14-rd-digital-employee-product.md](../superpowers/plans/2026-09-14-rd-digital-employee-product.md)  
+> **早期规格：** [../superpowers/specs/2026-09-14-ai-digital-employee-design.md](../superpowers/specs/2026-09-14-ai-digital-employee-design.md)（其中 Python 内核假设已作废）
 
-本目录是导航层。设计决策、岗位定义、知识织物、工具治理与分期均以完整规格为准。
+本目录是导航层。业务功能与拓扑以**产品计划**为准。
 
 ## 一句话
 
-以 **AgentScope 2.0 Agent Service** 为数字员工操作系统内核：岗位是 Workspace 模板，能力是 Skill + MCP + Tool Group，知识是 RAG Service + OpenSearch 混合检索，治理是 Permission / HITL / 评测 / 审计。
+底层 AI 基座 **只使用 AgentScope Java 2.0**（`ReActAgent` + `HarnessAgent`），不是 Python 版。岗位、任务、工作流、知识、审批叠在这套 Java 底座上。
 
 ## 推荐路线
 
-不要做单超级助手，也不要做互相孤立的知识机器人 / 代码机器人。目标态是 **岗位化多数字员工 + Lead 调度**。
+不要做单超级助手，也不要做互相孤立的知识机器人 / 代码机器人。目标态是 **岗位化多数字员工 + 工作台状态 + 可复用工作流**。
 
 ## 分层
 
 ```text
-交互面  IDE / IM / MR / 工单 / Web
+入口    桌面（本地/云端） / 浏览器（仅云端）
    ↓
-网关    SSO · 路由 · Session · SSE/A2A/AG-UI
+八模块  工作台 · 数字员工 · 工作区 · 知识 · 技能与工具 · 工作流 · 审批 · 设置
    ↓
-内核    AgentScope 2.0 ReAct · Middleware · Team · Plan · Permission
+运行    员工实例 · 任务（独立/协同/工作流运行） · 审批单
    ↓
-能力    Toolkit · Skill Hub · MCP Hub · Workspace/Sandbox
-   ↓
-知识    RAG Service（小库）+ OpenSearch 混合检索（组织级）+ ReMe 记忆
-   ↓
-系统    Git · CI · Wiki · 需求 · 观测 · 安全
-   ↓
-治理    审计 · 评测 · 配额 · 技能晋升 · HITL
+底座    AgentScope Java 2.0 HarnessAgent / ReActAgent（非 Python）
 ```
 
 ## 预置岗位

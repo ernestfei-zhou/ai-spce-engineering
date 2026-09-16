@@ -2,9 +2,9 @@
 
 > **作者：** ernestfei  
 > **日期：** 2026-09-14  
-> **状态：** 架构规格（Spec）  
+> **状态：** 部分过时。**AI 基座已改为仅 AgentScope Java 2.0**，以 [产品计划](../plans/2026-09-14-rd-digital-employee-product.md) 为准。下文凡写「Python 2.0 为主、Java 为补充」一律作废。  
+> **基座（现行）：** AgentScope **Java** 2.0（`ReActAgent` + `HarnessAgent`）。不使用 Python 版作为内核。  
 > **范围：** 研发部门 AI 效能提效（业务 AI、知识库、AI 工具、数字员工运行时）  
-> **基座：** AgentScope Python 2.0（[docs.agentscope.io](https://docs.agentscope.io/stable/en/index)），必要时以 AgentScope Java 2.0 作为企业侧集成补充  
 > **仓库：** `ai-spce-engineering`
 
 ---
@@ -99,13 +99,14 @@
 
 ### 3.3 语言与运行时选择
 
-| 选择 | 决策 |
+| 选择 | 决策（已修订，以产品计划为准） |
 | --- | --- |
-| 主运行时 | **AgentScope Python 2.0**（`agentscope>=2.0`，Python 3.11+）作为数字员工内核与 Agent Service |
-| 企业集成补充 | 若研发中台以 Java/Spring 为主，可用 **AgentScope Java 2.0 HarnessAgent** 做网关/工作流适配，但数字员工推理内核仍统一在 Python Agent Service，避免双栈漂移 |
-| 前端协议 | Agent Service 原生 SSE 事件流 + AG-UI；对外系统用 A2A / MCP |
-| 知识检索引擎 | 平台内建 RAG Service 覆盖个人/项目知识；组织级海量检索用 **OpenSearch 混合检索**（BM25 + 稠密向量 + 稀疏向量） |
-| 模型 | Credential 抽象多供应商：默认 DashScope/Qwen，备用 OpenAI / Anthropic / 私有化 vLLM |
+| 主运行时 | **仅 AgentScope Java 2.0**（`ReActAgent` + `HarnessAgent`）。数字员工推理与长期运行外壳都在 Java 底座上 |
+| 明确不用 | **AgentScope Python 2.0** 不作为内核、不作为 Agent Service、不与 Java 做双栈推理 |
+| 前端协议 | 与 Java 2.0 Channel / SSE / A2A / AG-UI 对齐 |
+| 模型 | Credential 抽象多供应商；本地可接私有模型 |
+
+~~原决策「Python 为主、Java 仅企业集成补充」已废弃。~~
 
 ---
 
@@ -263,7 +264,7 @@ sequenceDiagram
 | 数字员工所需能力 | AgentScope 2.0 对应物 | 我们只做的增量 |
 | --- | --- | --- |
 | 推理-行动循环 | `Agent` / `ReActAgent`：`reply` / `reply_stream` | 岗位 Prompt 与结构化输出 Schema |
-| 长期运行工程外壳 | Java 侧 `HarnessAgent`；Python 侧 Agent + Workspace + Middleware | 统一岗位模板 |
+| 长期运行工程外壳 | Java `HarnessAgent`（Workspace、记忆、子 Agent、沙箱、技能、Plan、Channel） | 岗位模板与工作流叠在 Harness 上 |
 | 多租户托管 | Agent Service（FastAPI，Redis storage + message bus） | 企业 SSO 中间件替换 `X-User-ID` |
 | 工具统一 | `Toolkit`：Python Tool / MCP / Skill / Tool Group | 研发工具组目录与内部 MCP |
 | 技能市场 | Skill Hub（ClawHub 等）+ `SKILL.md` | 研发效能技能仓库 |
@@ -289,7 +290,7 @@ sequenceDiagram
 - **ReAct 内核是无状态的。** 一次 `call/reply` 的可变状态走 `(userId, sessionId)` 上下文，同一 Agent 实例可并发服务多会话。
 - **岗位外壳是文件与中间件叠加，不改循环。** 人格、知识、技能、MCP 白名单、压缩、记忆、子 Agent、沙箱都挂在循环的关键时机上。
 
-Python 侧岗位装配伪结构（示意，非实现）：
+Java 侧岗位装配示意（非实现，内核为 HarnessAgent）：
 
 ```text
 DigitalEmployee = Agent(
@@ -997,7 +998,7 @@ AgentScope 文档已明确：共享状态进 Redis 才能多进程；Channel 长
 | 工具爆炸 | 上下文塞满工具 Schema | Tool Group + Meta Tool 按需激活 |
 | 影子 IT | 各团队私自接模型 | 统一网关与 Credential |
 | 过度自动化 | 自动合入/自动回滚 | 写操作 Ask；主干 Deny |
-| 双栈分裂 | Python/Java 各搞一套岗位 | Python Agent Service 为唯一推理内核 |
+| 双栈分裂 | Python/Java 各搞一套岗位与推理 | **只保留 Java 2.0 内核**，不以 Python Agent Service 为推理层 |
 | 成本失控 | 长会话反复塞全仓代码 | offload、模型路由、配额 |
 | 不信任 | 研发觉得“又一个机器人” | 嵌入 MR/IDE；先只读后可写；展示证据 |
 
@@ -1005,7 +1006,7 @@ AgentScope 文档已明确：共享状态进 Redis 才能多进程；Channel 长
 
 ## 18. 决策记录（ADR 摘要）
 
-1. **采用 AgentScope 2.0 作为数字员工操作系统内核**，不自研 Agent Runtime。
+1. **采用 AgentScope Java 2.0 作为数字员工操作系统内核**，不自研 Agent Runtime，**不使用 Python 版 AgentScope 作为底座**。
 2. **采用岗位化多数字员工 + Lead 调度**，不采用单超级助手作为目标态。
 3. **知识采用双引擎**：RAG Service 管小库，OpenSearch 管组织级混合检索。
 4. **能力采用 Skill + MCP + Tool Group**，内部 MCP 镜像后才能进生产。
@@ -1040,7 +1041,8 @@ AgentScope 文档已明确：共享状态进 Redis 才能多进程；Channel 长
 
 ## 21. 参考
 
-- AgentScope Python 2.0：[https://docs.agentscope.io/stable/en/index](https://docs.agentscope.io/stable/en/index)
+- AgentScope Java 2.0 Harness（现行基座）：[https://java.agentscope.io/v2/zh/docs/harness/architecture.html](https://java.agentscope.io/v2/zh/docs/harness/architecture.html)
+- AgentScope Python 2.0：仅作对照，**不作为本产品内核**
 - Agent 循环与 HITL：[Agent overview](https://docs.agentscope.io/stable/en/building-blocks/agent/overview)
 - Toolkit / MCP / Skill：[Tool overview](https://docs.agentscope.io/stable/en/building-blocks/tool/overview)
 - Workspace / Sandbox：[Workspace overview](https://docs.agentscope.io/stable/en/building-blocks/workspace/overview)
