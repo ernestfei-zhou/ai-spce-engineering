@@ -1,0 +1,13 @@
+---
+description: 所有代码与文档的署名约定
+alwaysApply: true
+---
+
+# 署名约定（必须遵守）
+
+所有代码、注释、设计文档、README 的作者署名一律使用 **ernestfei**。
+
+- Java / Python / TypeScript 等类、接口：`@author ernestfei`
+- Markdown / Spec / 架构文档：`作者：ernestfei` 或 `Author: ernestfei`
+- 不要使用其他署名（包括 `zhoucf@230612`）
+- 每个代码类、方法、接口必须有注释，且类中必须有上述署名
